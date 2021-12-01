@@ -13,14 +13,6 @@ def reformat_mac(address: list):
 print(reformat_mac(mac))
 
 
-# В зависимости от типа адреса, вывести на стандартный поток вывода:
-# •  „unicast“ - если первый байт в диапазоне 1-223
-# •  „multicast“ - если первый байт в диапазоне 224-239
-# •  „local broadcast“ - если IP-адрес равен 255.255.255.255
-# •  „unassigned“ - если IP-адрес равен 0.0.0.0
-# •  „unused“ - во всех остальных случаях
-
-
 def ip_type(ip):
     i = list(str(ip).split("."))
     if ip == "255.255.255.255":
@@ -53,7 +45,7 @@ def ip_type_checked(ip):
     if check_ip(ip):
         ip_type(ip)
     else:
-        print("Неправильный IP-адрес")
+        print("Wrong Ip")
 
 
 ip_type_checked(input())
@@ -67,3 +59,39 @@ def ip_type_checked_cont(ip):
 
 
 ip_type_checked_cont(input())
+
+
+
+
+access_template = [
+'switchport mode access', 'switchport access vlan',
+'spanning-tree portfast', 'spanning-tree bpduguard enable'
+]
+trunk_template = [
+'switchport trunk encapsulation dot1q', 'switchport mode trunk',
+'switchport trunk allowed vlan'
+]
+access = {
+'0/12': '10',
+'0/14': '11',
+'0/16': '17',
+'0/17': '150'
+}
+trunk = {
+'0/1': ['add', '10', '20'],
+'0/2': ['only', '11', '30'],
+'0/4': ['del', '17']
+}
+
+for intf, allowed in trunk.items():
+    action = (
+        allowed[0].replace("only", "").replace("del", " remove").replace("add", " add")
+    )
+    vlans = ",".join(allowed[1:])
+
+    print("interface FastEthernet" + intf)
+    for command in trunk_template:
+        if command.endswith("allowed vlan"):
+            print(' {} {} {} '.format(command, action, vlans) )
+        else:
+            print(' {}'.format(command))
